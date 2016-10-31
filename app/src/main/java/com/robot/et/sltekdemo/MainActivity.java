@@ -147,11 +147,20 @@ public class MainActivity extends Activity implements OnClickListener {
     private Bitmap showMap() {
         Log.e("MainActivity", "execShowMap()");
         RectF knowArea = slamwareCorePlatform.getKnownArea(MapType.BITMAP_8BIT, MapKind.EXPLORE_MAP);
+        float RLeft = knowArea.left;
+        float RRight = knowArea.right;
+        float RTop = knowArea.top;
+        float RBottom = knowArea.bottom;
+
+        Log.e("knowArea","==========knowArea===========");
+        Log.e("knowArea","RTop===="+RTop);
+        Log.e("knowArea","RBottom===="+RBottom);
+        Log.e("knowArea","RLeft===="+RLeft);
+        Log.e("knowArea","RRight===="+RRight);
+        Log.e("knowArea","=============================");
+
+
         map = slamwareCorePlatform.getMap(MapType.BITMAP_8BIT, MapKind.EXPLORE_MAP, knowArea);
-//		float mapCentX = map.getMapArea().centerX();
-//		float mapCentY = map.getMapArea().centerY();
-//		mapWidth = map.getDimension().getWidth();
-//		mapHeight = map.getDimension().getHeight();
 
         displayMapInfo(map);
 
@@ -189,7 +198,7 @@ public class MainActivity extends Activity implements OnClickListener {
         Log.e("MapInfo", "left=" + map.getMapArea().left);
         Log.e("MapInfo", "right=" + map.getMapArea().right);
         Log.e("MapInfo", "top=" + map.getMapArea().top);
-        Log.e("MapInfo", "bottom=" + map.getMapArea().bottom);
+        Log.e("MapInfo", "bottom=" + map.getMapArea().bottom); 
         Log.e("MapInfo", "centerX=" + map.getMapArea().centerX());
         Log.e("MapInfo", "centerY=" + map.getMapArea().centerY());
         Log.e("MapInfo", "width=" + map.getMapArea().width());
@@ -263,7 +272,7 @@ public class MainActivity extends Activity implements OnClickListener {
         LaserScan laserScan = slamwareCorePlatform.getLaserScan();
         Vector<LaserPoint> Vpoint = laserScan.getLaserPoints();
         for (int i = 0; i < Vpoint.size(); i++) {
-            Log.e("LaserPoint2", "Distance:" + Vpoint.get(i).getDistance() + ",angle:" + Vpoint.get(i).getAngle());
+            Log.e("LaserPoint", "Distance:" + Vpoint.get(i).getDistance() + ",angle:" + Vpoint.get(i).getAngle());
         }
     }
 
