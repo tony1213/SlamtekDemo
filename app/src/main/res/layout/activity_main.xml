@@ -121,6 +121,26 @@
             android:layout_alignParentTop="true"
             android:text="Test" />
 
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:id="@+id/editText1"
+            android:layout_below="@+id/clearMap"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignRight="@+id/clearMap"
+            android:layout_alignEnd="@+id/clearMap" />
+
+        <Button
+            android:text="旋转"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/execTurn"
+            android:layout_below="@+id/test"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
     </RelativeLayout>
 
 </LinearLayout>

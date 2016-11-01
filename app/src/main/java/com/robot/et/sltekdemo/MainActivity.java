@@ -14,6 +14,7 @@ import com.slamtec.slamware.robot.Map;
 import com.slamtec.slamware.robot.MapKind;
 import com.slamtec.slamware.robot.MapType;
 import com.slamtec.slamware.robot.Pose;
+import com.slamtec.slamware.robot.Rotation;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
@@ -30,12 +31,14 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity implements OnClickListener {
 
-    private Button forward, backward, left, right, clearMap, test;
+    private Button forward, backward, left, right, clearMap, test,execTurn;
+    private EditText angle;
     private ScaleImageView imageView;
     private TextView battery, quality, charing;
     private SlamwareCorePlatform slamwareCorePlatform;
@@ -111,6 +114,7 @@ public class MainActivity extends Activity implements OnClickListener {
         battery = (TextView) findViewById(R.id.battery);
         quality = (TextView) findViewById(R.id.quality);
         charing = (TextView) findViewById(R.id.charing);
+        angle = (EditText)findViewById(R.id.editText1);
         imageView = (ScaleImageView) findViewById(R.id.imageView1);
         forward = (Button) findViewById(R.id.forward);
         backward = (Button) findViewById(R.id.backward);
@@ -118,6 +122,8 @@ public class MainActivity extends Activity implements OnClickListener {
         right = (Button) findViewById(R.id.right);
         clearMap = (Button) findViewById(R.id.clearMap);
         test = (Button) findViewById(R.id.test);
+        execTurn = (Button)findViewById(R.id.execTurn);
+
 
 
         clearMap.setOnClickListener(this);
@@ -126,6 +132,7 @@ public class MainActivity extends Activity implements OnClickListener {
         left.setOnClickListener(this);
         right.setOnClickListener(this);
         test.setOnClickListener(this);
+        execTurn.setOnClickListener(this);
     }
 
     private void execConnect() {
@@ -147,50 +154,36 @@ public class MainActivity extends Activity implements OnClickListener {
     private Bitmap showMap() {
         Log.e("MainActivity", "execShowMap()");
         RectF knowArea = slamwareCorePlatform.getKnownArea(MapType.BITMAP_8BIT, MapKind.EXPLORE_MAP);
-//        float RLeft = knowArea.left;
-//        float RRight = knowArea.right;
-//        float RTop = knowArea.top;
-//        float RBottom = knowArea.bottom;
-//
-//        Log.e("knowArea","==========knowArea===========");
-//        Log.e("knowArea","RTop===="+RTop);
-//        Log.e("knowArea","RBottom===="+RBottom);
-//        Log.e("knowArea","RLeft===="+RLeft);
-//        Log.e("knowArea","RRight===="+RRight);
-//        Log.e("knowArea","=============================");
-
-
         map = slamwareCorePlatform.getMap(MapType.BITMAP_8BIT, MapKind.EXPLORE_MAP, knowArea);
+
+        displayMapInfo(map);
 
         double mapLeft = (double)map.getMapArea().left/0.05;
         double mapTop = (double)map.getMapArea().top/0.05;
         Log.e("Test","mapLeft:"+mapLeft+",mapTop:"+mapTop);
+
         double logicPointX = Math.abs(mapLeft);
         double logicPointY = Math.abs(mapTop);
         Log.e("Test","logicX:"+logicPointX+",logicY:"+logicPointY);
 
-
-
-
-
-
-
-
-
-        displayMapInfo(map);
-
         Pose robotPose = slamwareCorePlatform.getPose();
-
         double robotX = logicPointX+robotPose.getX()/0.05;
         double robotY = logicPointY+robotPose.getY()/0.05;
 
-
-
-
-
-//        displayLocalizationInfo(robotPose);
+        displayLocalizationInfo(robotPose);
 
         bitmap = Bitmap.createBitmap(map.getDimension().getWidth() + 1, map.getDimension().getHeight() + 1, Bitmap.Config.ARGB_4444);
+
+        for (int posY = 0; posY < map.getDimension().getHeight(); ++posY) {
+            for (int posX = 0; posX < map.getDimension().getWidth(); ++posX) {
+                int color = 127 + map.getData()[posX + (map.getDimension().getHeight() - posY - 1) * map.getDimension().getWidth()];
+                    bitmap.setPixel(posX, posY, Color.rgb(color, color, color));
+            }
+        }
+
+
+
+
         for (int posY = 0; posY < map.getDimension().getHeight(); ++posY) {
             for (int posX = 0; posX < map.getDimension().getWidth(); ++posX) {
                 int color = 127 + map.getData()[posX + (map.getDimension().getHeight() - posY - 1) * map.getDimension().getWidth()];
@@ -200,7 +193,6 @@ public class MainActivity extends Activity implements OnClickListener {
                 }else {
                     bitmap.setPixel(posX, posY, Color.rgb(color, color, color));
                 };
-
             }
         }
         return bitmap;
@@ -305,6 +297,12 @@ public class MainActivity extends Activity implements OnClickListener {
         }
     }
 
+    private void execTurn(){
+        double radians=Math.toRadians(Double.valueOf(angle.getText().toString()));
+        Rotation rotation = new Rotation((float)radians,0,0);
+        slamwareCorePlatform.rotate(rotation);
+    }
+
     @Override
     public void onClick(View view) {
         if (null == slamwareCorePlatform) {
@@ -328,6 +326,8 @@ public class MainActivity extends Activity implements OnClickListener {
                 slamwareCorePlatform.clearMap();
             case R.id.test:
                 execTest();
+            case R.id.execTurn:
+                execTurn();
 
             default:
                 break;
