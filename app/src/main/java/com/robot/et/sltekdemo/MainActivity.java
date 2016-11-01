@@ -147,32 +147,60 @@ public class MainActivity extends Activity implements OnClickListener {
     private Bitmap showMap() {
         Log.e("MainActivity", "execShowMap()");
         RectF knowArea = slamwareCorePlatform.getKnownArea(MapType.BITMAP_8BIT, MapKind.EXPLORE_MAP);
-        float RLeft = knowArea.left;
-        float RRight = knowArea.right;
-        float RTop = knowArea.top;
-        float RBottom = knowArea.bottom;
-
-        Log.e("knowArea","==========knowArea===========");
-        Log.e("knowArea","RTop===="+RTop);
-        Log.e("knowArea","RBottom===="+RBottom);
-        Log.e("knowArea","RLeft===="+RLeft);
-        Log.e("knowArea","RRight===="+RRight);
-        Log.e("knowArea","=============================");
+//        float RLeft = knowArea.left;
+//        float RRight = knowArea.right;
+//        float RTop = knowArea.top;
+//        float RBottom = knowArea.bottom;
+//
+//        Log.e("knowArea","==========knowArea===========");
+//        Log.e("knowArea","RTop===="+RTop);
+//        Log.e("knowArea","RBottom===="+RBottom);
+//        Log.e("knowArea","RLeft===="+RLeft);
+//        Log.e("knowArea","RRight===="+RRight);
+//        Log.e("knowArea","=============================");
 
 
         map = slamwareCorePlatform.getMap(MapType.BITMAP_8BIT, MapKind.EXPLORE_MAP, knowArea);
 
+        double mapLeft = (double)map.getMapArea().left/0.05;
+        double mapTop = (double)map.getMapArea().top/0.05;
+        Log.e("Test","mapLeft:"+mapLeft+",mapTop:"+mapTop);
+        double logicPointX = Math.abs(mapLeft);
+        double logicPointY = Math.abs(mapTop);
+        Log.e("Test","logicX:"+logicPointX+",logicY:"+logicPointY);
+
+
+
+
+
+
+
+
+
         displayMapInfo(map);
 
         Pose robotPose = slamwareCorePlatform.getPose();
-        displayLocalizationInfo(robotPose);
+
+        double robotX = logicPointX+robotPose.getX()/0.05;
+        double robotY = logicPointY+robotPose.getY()/0.05;
+
+
+
+
+
+//        displayLocalizationInfo(robotPose);
 
         bitmap = Bitmap.createBitmap(map.getDimension().getWidth() + 1, map.getDimension().getHeight() + 1, Bitmap.Config.ARGB_4444);
         for (int posY = 0; posY < map.getDimension().getHeight(); ++posY) {
             for (int posX = 0; posX < map.getDimension().getWidth(); ++posX) {
                 int color = 127 + map.getData()[posX + (map.getDimension().getHeight() - posY - 1) * map.getDimension().getWidth()];
 //				bitmap.setPixel(posX, posY, Color.argb(0, color, color, color));
-                bitmap.setPixel(posX, posY, Color.rgb(color, color, color));
+                if (Math.sqrt(Math.pow(robotX-posX,2)+Math.pow(robotY-posY,2))<1){
+                    bitmap.setPixel(posX,posY,Color.BLUE);
+                }else {
+                    bitmap.setPixel(posX, posY, Color.rgb(color, color, color));
+                };
+
             }
         }
         return bitmap;
@@ -198,7 +226,8 @@ public class MainActivity extends Activity implements OnClickListener {
         Log.e("MapInfo", "left=" + map.getMapArea().left);
         Log.e("MapInfo", "right=" + map.getMapArea().right);
         Log.e("MapInfo", "top=" + map.getMapArea().top);
-        Log.e("MapInfo", "bottom=" + map.getMapArea().bottom); 
+        Log.e("MapInfo", "bottom=" + map.getMapArea().bottom);
+//        Log.e("MapInfo","MapPosition:"+map.)
         Log.e("MapInfo", "centerX=" + map.getMapArea().centerX());
         Log.e("MapInfo", "centerY=" + map.getMapArea().centerY());
         Log.e("MapInfo", "width=" + map.getMapArea().width());
