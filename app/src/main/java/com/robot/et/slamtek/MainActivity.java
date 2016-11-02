@@ -1,4 +1,4 @@
-package com.robot.et.sltekdemo;
+package com.robot.et.slamtek;
 
 import java.util.List;
 import java.util.Timer;
@@ -24,9 +24,9 @@ import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
@@ -35,20 +35,37 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends Activity implements OnClickListener {
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-    private Button forward, backward, left, right, clearMap, test,execTurn;
-    private EditText angle;
-    private ScaleImageView imageView;
-    private TextView battery, quality, charing;
+public class MainActivity extends Activity{
+
+    @BindView(R.id.forward) Button forward;
+    @BindView(R.id.backward) Button backward;
+    @BindView(R.id.left) Button left;
+    @BindView(R.id.right) Button right;
+    @BindView(R.id.clearMap) Button clearMap;
+    @BindView(R.id.test) Button test;
+    @BindView(R.id.execTurn) Button execTurn;
+    @BindView(R.id.moveGoal) Button moveGoal;
+    @BindView(R.id.battery) TextView battery;
+    @BindView(R.id.quality) TextView quality;
+    @BindView(R.id.charing) TextView charing;
+    @BindView(R.id.angle) EditText angle;
+    @BindView(R.id.goalx) EditText goalX;
+    @BindView(R.id.goaly) EditText goalY;
+
+    private ScaleImageView mapView;
+
     private SlamwareCorePlatform slamwareCorePlatform;
+    private Pose robotPose;
     private Map map;
-    private int mapWidth, mapHeight;
-
     private Bitmap bitmap;
 
-
-    int SIGN = 17;
+    private static final int UPATE_MAP_SIGN = 17;
+    private static final String ROBOT_IP = "192.168.11.1";
+    private static final int PORT = 1445;
 
     static {
         Log.e("MainActivity", "load library");
@@ -59,7 +76,7 @@ public class MainActivity extends Activity implements OnClickListener {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            if (msg.what == SIGN) {
+            if (msg.what == UPATE_MAP_SIGN) {
                 showMap();
                 updateContent();
             }
@@ -72,23 +89,9 @@ public class MainActivity extends Activity implements OnClickListener {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);//横屏
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
-        init();
+        ButterKnife.bind(this);
+        mapView = (ScaleImageView) findViewById(R.id.imageView1);
         execConnect();
-//        execGetRobotStatus();
-//        execTest();
-//        new Thread(new Runnable() {
-//
-//			@Override
-//			public void run() {
-//				Log.e("bitmap", "exec get bitmap");
-//				bitmap=showMap();
-//				try {
-//					Thread.sleep(500);
-//				} catch (InterruptedException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		}).start();
     }
 
     @Override
@@ -103,41 +106,16 @@ public class MainActivity extends Activity implements OnClickListener {
                 @Override
                 public void run() {
                     Message msg = new Message();
-                    msg.what = SIGN;
+                    msg.what = UPATE_MAP_SIGN;
                     handler.sendMessage(msg);
                 }
             }, 0, 1000);
         }
     }
 
-    private void init() {
-        battery = (TextView) findViewById(R.id.battery);
-        quality = (TextView) findViewById(R.id.quality);
-        charing = (TextView) findViewById(R.id.charing);
-        angle = (EditText)findViewById(R.id.editText1);
-        imageView = (ScaleImageView) findViewById(R.id.imageView1);
-        forward = (Button) findViewById(R.id.forward);
-        backward = (Button) findViewById(R.id.backward);
-        left = (Button) findViewById(R.id.left);
-        right = (Button) findViewById(R.id.right);
-        clearMap = (Button) findViewById(R.id.clearMap);
-        test = (Button) findViewById(R.id.test);
-        execTurn = (Button)findViewById(R.id.execTurn);
-
-
-
-        clearMap.setOnClickListener(this);
-        forward.setOnClickListener(this);
-        backward.setOnClickListener(this);
-        left.setOnClickListener(this);
-        right.setOnClickListener(this);
-        test.setOnClickListener(this);
-        execTurn.setOnClickListener(this);
-    }
-
     private void execConnect() {
         try {
-            slamwareCorePlatform = SlamwareCorePlatform.connect("192.168.11.1", 1445);
+            slamwareCorePlatform = SlamwareCorePlatform.connect(ROBOT_IP, PORT);
         } catch (Exception e) {
             Log.e("MainActivity", "Exception:" + e.toString());
             Toast.makeText(MainActivity.this, "连接失败", Toast.LENGTH_LONG).show();
@@ -156,8 +134,6 @@ public class MainActivity extends Activity implements OnClickListener {
         RectF knowArea = slamwareCorePlatform.getKnownArea(MapType.BITMAP_8BIT, MapKind.EXPLORE_MAP);
         map = slamwareCorePlatform.getMap(MapType.BITMAP_8BIT, MapKind.EXPLORE_MAP, knowArea);
 
-        displayMapInfo(map);
-
         double mapLeft = (double)map.getMapArea().left/0.05;
         double mapTop = (double)map.getMapArea().top/0.05;
         Log.e("Test","mapLeft:"+mapLeft+",mapTop:"+mapTop);
@@ -166,29 +142,18 @@ public class MainActivity extends Activity implements OnClickListener {
         double logicPointY = Math.abs(mapTop);
         Log.e("Test","logicX:"+logicPointX+",logicY:"+logicPointY);
 
-        Pose robotPose = slamwareCorePlatform.getPose();
+        robotPose = slamwareCorePlatform.getPose();
         double robotX = logicPointX+robotPose.getX()/0.05;
         double robotY = logicPointY+robotPose.getY()/0.05;
 
         displayLocalizationInfo(robotPose);
 
         bitmap = Bitmap.createBitmap(map.getDimension().getWidth() + 1, map.getDimension().getHeight() + 1, Bitmap.Config.ARGB_4444);
-
-        for (int posY = 0; posY < map.getDimension().getHeight(); ++posY) {
-            for (int posX = 0; posX < map.getDimension().getWidth(); ++posX) {
-                int color = 127 + map.getData()[posX + (map.getDimension().getHeight() - posY - 1) * map.getDimension().getWidth()];
-                    bitmap.setPixel(posX, posY, Color.rgb(color, color, color));
-            }
-        }
-
-
-
-
         for (int posY = 0; posY < map.getDimension().getHeight(); ++posY) {
             for (int posX = 0; posX < map.getDimension().getWidth(); ++posX) {
                 int color = 127 + map.getData()[posX + (map.getDimension().getHeight() - posY - 1) * map.getDimension().getWidth()];
 //				bitmap.setPixel(posX, posY, Color.argb(0, color, color, color));
-                if (Math.sqrt(Math.pow(robotX-posX,2)+Math.pow(robotY-posY,2))<1){
+                if (Math.sqrt(Math.pow(robotX-posX,2)+Math.pow(robotY-posY,2))<2){
                     bitmap.setPixel(posX,posY,Color.BLUE);
                 }else {
                     bitmap.setPixel(posX, posY, Color.rgb(color, color, color));
@@ -199,14 +164,12 @@ public class MainActivity extends Activity implements OnClickListener {
     }
 
     private void updateContent() {
-        ViewGroup.LayoutParams lp = imageView.getLayoutParams();
+        ViewGroup.LayoutParams lp = mapView.getLayoutParams();
         lp.width = LayoutParams.MATCH_PARENT;
         lp.height = LayoutParams.MATCH_PARENT;
-        imageView.setLayoutParams(lp);
-//		imageView.setMaxWidth(LayoutParams.MATCH_PARENT);
-//		imageView.setMaxHeight(LayoutParams.MATCH_PARENT);
-        imageView.setImageBitmap(bitmap);
-        imageView.invalidate();
+        mapView.setLayoutParams(lp);
+        mapView.setImageBitmap(bitmap);
+        mapView.invalidate();
         battery.setText("Battery:" + slamwareCorePlatform.getBatteryPercentage() + "%");
         quality.setText("Quality:" + slamwareCorePlatform.getLocalizationQuality());
         charing.setText("Charing:" + slamwareCorePlatform.getBatteryIsCharging());
@@ -246,17 +209,20 @@ public class MainActivity extends Activity implements OnClickListener {
     }
 
     private void displayLocalizationInfo(Pose robotPose) {
-        Log.e("MapInfo", "-----------RobotPose--------------");
-        Log.e("MapInfo", "poseX:" + robotPose.getX());
-        Log.e("MapInfo", "poseY:" + robotPose.getY());
-        Log.e("MapInfo", "poseZ:" + robotPose.getZ());
-        Log.e("MapInfo", "yaw:" + robotPose.getYaw());
-        Log.e("MapInfo", "pitch:" + robotPose.getPitch());
-        Log.e("MapInfo", "roll:" + robotPose.getRoll());
-        Log.e("MapInfo", "==================================");
+        Log.e("Pose", "-----------RobotPose--------------");
+        Log.e("Pose", "poseX:" + robotPose.getX());
+        Log.e("Pose", "poseY:" + robotPose.getY());
+        Log.e("Pose", "poseZ:" + robotPose.getZ());
+        Log.e("Pose", "yaw:" + robotPose.getYaw());
+        Log.e("Pose", "pitch:" + robotPose.getPitch());
+        Log.e("Pose", "roll:" + robotPose.getRoll());
+        Log.e("Pose", "==================================");
     }
 
-    private void execGetRobotStatus() {
+    @OnClick(R.id.test)
+    public void execTest() {
+        displayMapInfo(map);
+        Log.e("test", "=====================execTest=====================");
         Log.e("RobotStatus", "===================RobotStatus==================");
         Log.e("RobotStatus", "IsCharging:" + slamwareCorePlatform.getBatteryIsCharging());
         Log.e("RobotStatus", "BatteryPercent:" + slamwareCorePlatform.getBatteryPercentage());
@@ -264,10 +230,6 @@ public class MainActivity extends Activity implements OnClickListener {
         Log.e("RobotStatus", "SlamwareVersion" + slamwareCorePlatform.getSlamwareVersion());
         Log.e("RobotStatus", "SDKVersion:" + slamwareCorePlatform.getSDKVersion());
         Log.e("RobotStatus", "================================================");
-    }
-
-    private void execTest() {
-        Log.e("test", "=====================execTest=====================");
         List<MapType> list = slamwareCorePlatform.getAvailableMaps();
         for (int i = 0; i < list.size(); i++) {
             Log.e("MapType", "MapType:" + list.get(i));
@@ -297,18 +259,32 @@ public class MainActivity extends Activity implements OnClickListener {
         }
     }
 
-    private void execTurn(){
-        double radians=Math.toRadians(Double.valueOf(angle.getText().toString()));
+    @OnClick(R.id.execTurn)
+    public void execTurn(){
+        String data=angle.getText().toString().trim();
+        if (TextUtils.equals("",data)){
+            return;
+        }
+        double radians=Math.toRadians(Double.valueOf(data));
         Rotation rotation = new Rotation((float)radians,0,0);
         slamwareCorePlatform.rotate(rotation);
     }
 
-    @Override
-    public void onClick(View view) {
-        if (null == slamwareCorePlatform) {
-            Toast.makeText(MainActivity.this, "请先点击Connect按钮", Toast.LENGTH_LONG).show();
+    @OnClick(R.id.moveGoal)
+    public void execMoveGoal(){
+        String dataX = goalX.getText().toString().trim();
+        String dataY = goalY.getText().toString().trim();
+        if (TextUtils.equals("",dataX) || TextUtils.equals("",dataY)){
             return;
         }
+        Location location = new Location();
+        location.setX(Float.valueOf(dataX));
+        location.setY(Float.valueOf(dataY));
+        location.setZ(0.0f);
+        slamwareCorePlatform.moveTo(location);
+    }
+    @OnClick({R.id.forward,R.id.backward,R.id.left,R.id.right})
+    public void execForward(View view){
         switch (view.getId()) {
             case R.id.forward:
                 slamwareCorePlatform.moveBy(MoveDirection.FORWARD);
@@ -322,13 +298,6 @@ public class MainActivity extends Activity implements OnClickListener {
             case R.id.right:
                 slamwareCorePlatform.moveBy(MoveDirection.TURN_RIGHT);
                 break;
-            case R.id.clearMap:
-                slamwareCorePlatform.clearMap();
-            case R.id.test:
-                execTest();
-            case R.id.execTurn:
-                execTurn();
-
             default:
                 break;
         }

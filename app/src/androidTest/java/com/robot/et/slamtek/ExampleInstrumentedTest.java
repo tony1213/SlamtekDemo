@@ -1,4 +1,4 @@
-package com.robot.et.sltekdemo;
+package com.robot.et.slamtek;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

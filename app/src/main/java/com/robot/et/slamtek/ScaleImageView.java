@@ -1,16 +1,13 @@
-package com.robot.et.sltekdemo;
+package com.robot.et.slamtek;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.util.AttributeSet;
-import android.util.FloatMath;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 
-@SuppressLint("FloatMath")
 public class ScaleImageView extends ImageView {
 
 	private Matrix matrix = new Matrix();
@@ -41,7 +38,6 @@ public class ScaleImageView extends ImageView {
 	private float spacing(MotionEvent event) {
 		float x = event.getX(0) - event.getX(1);
 		float y = event.getY(0) - event.getY(1);
-//		return FloatMath.sqrt(x * x + y * y);
 		return (float) Math.sqrt(x * x + y * y);
 	}
 
@@ -54,41 +50,41 @@ public class ScaleImageView extends ImageView {
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP)
-			Log.d("Infor", "������");
+			Log.d("Infor", "多点操作");
 		switch (event.getActionMasked()) {
-		case MotionEvent.ACTION_DOWN:
-			matrix.set(getImageMatrix());
-			savedMatrix.set(matrix);
-			start.set(event.getX(), event.getY());
-			Log.d("Infor", "������...");
-			mode = DRAG;
-			break;
-		case MotionEvent.ACTION_POINTER_DOWN: // ��㴥��
-			oldDist = this.spacing(event);
-			if (oldDist > 10f) {
-				Log.d("Infor", "oldDist" + oldDist);
+			case MotionEvent.ACTION_DOWN:
+				matrix.set(getImageMatrix());
 				savedMatrix.set(matrix);
-				midPoint(mid, event);
-				mode = ZOOM;
-			}
-			break;
-		case MotionEvent.ACTION_POINTER_UP:
-			mode = NONE;
-			break;
-		case MotionEvent.ACTION_MOVE:
-			if (mode == DRAG) { // ��ʵ��ͼƬ���϶�����...
-				matrix.set(savedMatrix);
-				matrix.postTranslate(event.getX() - start.x, event.getY()
-						- start.y);
-			} else if (mode == ZOOM) {// ��ʵ��ͼƬ�����Ź���...
-				float newDist = spacing(event);
-				if (newDist > 10) {
-					matrix.set(savedMatrix);
-					float scale = newDist / oldDist;
-					matrix.postScale(scale, scale, mid.x, mid.y);
+				start.set(event.getX(), event.getY());
+				Log.d("Infor", "触摸了...");
+				mode = DRAG;
+				break;
+			case MotionEvent.ACTION_POINTER_DOWN: // 多点触控
+				oldDist = this.spacing(event);
+				if (oldDist > 10f) {
+					Log.d("Infor", "oldDist" + oldDist);
+					savedMatrix.set(matrix);
+					midPoint(mid, event);
+					mode = ZOOM;
 				}
-			}
-			break;
+				break;
+			case MotionEvent.ACTION_POINTER_UP:
+				mode = NONE;
+				break;
+			case MotionEvent.ACTION_MOVE:
+				if (mode == DRAG) { // 此实现图片的拖动功能...
+					matrix.set(savedMatrix);
+					matrix.postTranslate(event.getX() - start.x, event.getY()
+							- start.y);
+				} else if (mode == ZOOM) {// 此实现图片的缩放功能...
+					float newDist = spacing(event);
+					if (newDist > 10) {
+						matrix.set(savedMatrix);
+						float scale = newDist / oldDist;
+						matrix.postScale(scale, scale, mid.x, mid.y);
+					}
+				}
+				break;
 		}
 		setImageMatrix(matrix);
 		return true;
