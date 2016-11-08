@@ -3,41 +3,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:baselineAligned="false"
-    android:orientation="horizontal" >
+    android:orientation="horizontal">
 
     <RelativeLayout
         android:layout_width="0dip"
         android:layout_height="match_parent"
-        android:background="#7f7f7f"
-        android:layout_weight="2" >
+        android:layout_weight="2"
 
-        <!-- <ImageView
-            android:id="@+id/imageView1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:scaleType="fitXY"
-            android:adjustViewBounds="true"
-            android:layout_centerInParent="true"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_launcher" /> -->
-
-        <!--<com.example.slamtekdemo.ScaleImageView
-            android:id="@+id/imageView1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:scaleType="matrix"
-            android:layout_centerInParent="true"
-            android:contentDescription="@null"
-            />-->
-
-        <com.robot.et.slamtek.ScaleImageView
-            android:id="@+id/imageView1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:scaleType="matrix"
-            android:layout_centerInParent="true"
-            android:contentDescription="@null" />
-
+        <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true" />
 
         <TextView
             android:id="@+id/battery"
@@ -46,8 +23,8 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:layout_marginTop="16dp"
-            android:textColor="#00ff00"
-            android:text="Battery" />
+            android:text="Battery"
+            android:textColor="#00ff00" />
 
         <TextView
             android:id="@+id/quality"
@@ -55,8 +32,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_below="@+id/battery"
-            android:textColor="#00ff00"
-            android:text="quality" />
+            android:text="quality"
+            android:textColor="#00ff00" />
 
         <TextView
             android:id="@+id/charing"
@@ -64,14 +41,14 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_below="@+id/quality"
-            android:textColor="#00ff00"
-            android:text="charing" />
+            android:text="charing"
+            android:textColor="#00ff00" />
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="0dip"
         android:layout_height="match_parent"
-        android:layout_weight="1" >
+        android:layout_weight="1">
 
         <Button
             android:id="@+id/right"
@@ -122,61 +99,61 @@
             android:text="Test" />
 
         <EditText
+            android:id="@+id/angle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:id="@+id/angle"
-            android:layout_below="@+id/clearMap"
+            android:layout_alignEnd="@+id/clearMap"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignRight="@+id/clearMap"
-            android:layout_alignEnd="@+id/clearMap" />
+            android:layout_below="@+id/clearMap"
+            android:ems="10" />
 
         <Button
-            android:text="旋转"
+            android:id="@+id/execTurn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/execTurn"
-            android:layout_below="@+id/test"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_below="@+id/test"
+            android:text="旋转" />
 
         <EditText
+            android:id="@+id/goalx"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:inputType="number"
-            android:ems="10"
-            android:id="@+id/goalx"
-            android:layout_below="@+id/execTurn"
+            android:layout_alignEnd="@+id/angle"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignRight="@+id/angle"
-            android:layout_alignEnd="@+id/angle"
-            android:hint="X值" />
+            android:layout_below="@+id/execTurn"
+            android:ems="10"
+            android:hint="X值"
+            android:inputType="number" />
 
         <Button
-            android:text="moveGoal"
+            android:id="@+id/moveGoal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/moveGoal"
             android:layout_above="@+id/forward"
-            android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+            android:layout_alignParentRight="true"
+            android:layout_alignParentStart="true"
+            android:text="moveGoal" />
 
         <EditText
+            android:id="@+id/goaly"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:inputType="number"
-            android:ems="10"
-            android:id="@+id/goaly"
             android:layout_alignBaseline="@+id/goalx"
             android:layout_alignBottom="@+id/goalx"
-            android:layout_toRightOf="@+id/goalx"
-            android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:hint="Y值" />
+            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@+id/goalx"
+            android:ems="10"
+            android:hint="Y值"
+            android:inputType="number" />
 
     </RelativeLayout>
 

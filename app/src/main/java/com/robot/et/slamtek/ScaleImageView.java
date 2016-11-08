@@ -48,6 +48,13 @@ public class ScaleImageView extends ImageView {
 	}
 
 	@Override
+	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+		super.onLayout(changed, left, top, right, bottom);
+	}
+
+
+
+	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP)
 			Log.d("Infor", "多点操作");
