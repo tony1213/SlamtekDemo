@@ -142,24 +142,40 @@ public class MainActivity extends BaseActivity {
         String dataX = goalX.getText().toString().trim();
         String dataY = goalY.getText().toString().trim();
         if (TextUtils.equals("",dataX) || TextUtils.equals("",dataY)){
-            return;
+            Location location1 = new Location();
+            location1.setX(1.0F);
+            location1.setY(0.0F);
+            location1.setZ(0.0F);
+
+            Location location2 = new Location();
+            location2.setX(1.0f);
+            location2.setY(1.0f);
+            location2.setZ(0.0f);
+
+            Location location3 = new Location();
+            location3.setX(0.0f);
+            location3.setY(1.0f);
+            location3.setZ(0.0f);
+
+            Location location4 = new Location();
+            location4.setX(0.0f);
+            location4.setY(0.0f);
+            location4.setZ(0.0f);
+
+            List<Location> goals = new ArrayList<>();
+            goals.add(location1);
+            goals.add(location2);
+            goals.add(location3);
+            goals.add(location4);
+
+            slamwareCorePlatform.moveTo(goals,false,true);
+        }else {
+            Location location = new Location();
+            location.setX(Float.valueOf(dataX));
+            location.setY(Float.valueOf(dataY));
+            location.setZ(0.0f);
+            slamwareCorePlatform.moveTo(location);
         }
-        Location location = new Location();
-        location.setX(Float.valueOf(dataX));
-        location.setY(Float.valueOf(dataY));
-        location.setZ(0.0f);
-
-//        Location location1 = new Location(1.0f,1.0f,0.0f);
-//        Location location2 = new Location(2.0f,1.0f,0.0f);
-//        Location location3 = new Location(2.0f,0.0f,0.0f);
-//        List<Location> goals = new ArrayList<>();
-//        goals.add(location1);
-//        goals.add(location2);
-//        goals.add(location3);
-//
-//        slamwareCorePlatform.moveTo(goals,true,true);
-
-        slamwareCorePlatform.moveTo(location);
     }
     @OnClick({R.id.forward,R.id.backward,R.id.left,R.id.right})
     public void execForward(View view){
