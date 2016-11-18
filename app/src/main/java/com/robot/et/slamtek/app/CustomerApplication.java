@@ -17,44 +17,8 @@ import java.util.UUID;
 
 public class CustomerApplication extends Application {
 
-    private static final String ROBOT_IP = "192.168.11.1";
-    private static final int PORT = 1445;
-    private static final String WIFI_SSID = "ROBOTAI_MINO";
-    private static final String WIFI_PASSWORD = "robotai@1234";
-
     @Override
     public void onCreate() {
         super.onCreate();
-
-
-        Device device = new Device() {
-            @Override
-            public boolean canBeFoundWith(DiscoveryMode discoveryMode) {
-                Log.e("connect","canBeFoundWith:"+discoveryMode.name());
-                return false;
-            }
-        };
-        UUID uuid = device.getDeviceId();
-
-        new DeviceManager(getApplicationContext()).pair(new Device() {
-            @Override
-            public boolean canBeFoundWith(DiscoveryMode discoveryMode) {
-                return false;
-            }
-        }, WIFI_SSID, WIFI_PASSWORD, new AbstractDiscover.BleConfigureListener() {
-            @Override
-            public void onConfigureSuccess() {
-                Log.e("connect","配置成功");
-            }
-
-            @Override
-            public void onConfigureFailure(String s) {
-                Log.e("connect","错误信息："+s.toString());
-            }
-        });
-    }
-
-    public SlamwareCorePlatform getSlamwareCorePlatform(){
-        return SlamwareCorePlatform.connect(ROBOT_IP,PORT);
     }
 }

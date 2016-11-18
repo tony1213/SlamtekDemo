@@ -1,44 +1,25 @@
 package com.robot.et.slamtek;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.Vector;
 
 import com.robot.et.slamtek.base.BaseActivity;
 import com.robot.et.slamtek.fragment.MapFragment;
-import com.slamtec.slamware.SlamwareCorePlatform;
-import com.slamtec.slamware.action.MoveDirection;
 import com.slamtec.slamware.robot.LaserPoint;
 import com.slamtec.slamware.robot.LaserScan;
 import com.slamtec.slamware.robot.Location;
-import com.slamtec.slamware.robot.Map;
-import com.slamtec.slamware.robot.MapKind;
-import com.slamtec.slamware.robot.MapType;
 import com.slamtec.slamware.robot.Pose;
-import com.slamtec.slamware.robot.Rotation;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.pm.ActivityInfo;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.RectF;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -61,6 +42,12 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.goalx) EditText goalX;
     @BindView(R.id.goaly) EditText goalY;
 
+    private static final int MOVEDIRECTION_FORWARD = 1;
+    private static final int MOVEDIRECTION_BACKWARD = 2;
+    private static final int MOVEDIRECTION_TURN_LEFT = 3;
+    private static final int MOVEDIRECTION_TURN_RIGHT = 4;
+    private static final int MOVEDIRECTION_CANCEL = 5;
+
     static {
         Log.e("MainActivity", "load library");
         System.loadLibrary("rpsdk");
@@ -73,6 +60,17 @@ public class MainActivity extends BaseActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        initRobotState();
+        initMapFragment();
+    }
+
+    private void initRobotState(){
+        quality.setText("quality:"+SlamtecLoader.getInstance().getLocalizationQuality());
+        battery.setText("BatteryPercent:" + SlamtecLoader.getInstance().getBatteryPrecent());
+        charing.setText("IsCharing:"+SlamtecLoader.getInstance().getCharingState());
+    }
+
+    private void initMapFragment(){
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         MapFragment fragment = new MapFragment();
         transaction.add(R.id.container,fragment);
@@ -84,11 +82,39 @@ public class MainActivity extends BaseActivity {
         super.onAttachFragment(fragment);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (null == slamwareCorePlatform) {
-            Toast.makeText(MainActivity.this, "连接异常", Toast.LENGTH_LONG).show();
+    @OnClick(R.id.execTurn)
+    public void execTurn(){
+        String data=angle.getText().toString().trim();
+        if (TextUtils.equals("",data)){
+            return;
+        }
+        SlamtecLoader.getInstance().execBasicRotate((int) Math.toRadians(Double.valueOf(data)));
+    }
+
+    @OnClick(R.id.moveGoal)
+    public void execMoveGoal(){
+        String dataX = goalX.getText().toString().trim();
+        String dataY = goalY.getText().toString().trim();
+        SlamtecLoader.getInstance().execSetGoal(Float.valueOf(dataX),Float.valueOf(dataY));
+    }
+    @OnClick({R.id.forward,R.id.backward,R.id.left,R.id.right})
+    public void execForward(View view){
+        switch (view.getId()) {
+            case R.id.forward:
+                SlamtecLoader.getInstance().execBasicMove(MOVEDIRECTION_FORWARD);
+                break;
+            case R.id.backward:
+                SlamtecLoader.getInstance().execBasicMove(MOVEDIRECTION_BACKWARD);
+                break;
+            case R.id.left:
+                SlamtecLoader.getInstance().execBasicMove(MOVEDIRECTION_TURN_LEFT);
+                break;
+            case R.id.right:
+                SlamtecLoader.getInstance().execBasicMove(MOVEDIRECTION_TURN_RIGHT);
+                break;
+            default:
+                SlamtecLoader.getInstance().execBasicMove(MOVEDIRECTION_CANCEL);
+                break;
         }
     }
 
@@ -123,77 +149,6 @@ public class MainActivity extends BaseActivity {
         Vector<LaserPoint> Vpoint = laserScan.getLaserPoints();
         for (int i = 0; i < Vpoint.size(); i++) {
             Log.e("LaserPoint", "Distance:" + Vpoint.get(i).getDistance() + ",angle:" + Vpoint.get(i).getAngle());
-        }
-    }
-
-    @OnClick(R.id.execTurn)
-    public void execTurn(){
-        String data=angle.getText().toString().trim();
-        if (TextUtils.equals("",data)){
-            return;
-        }
-        double radians=Math.toRadians(Double.valueOf(data));
-        Rotation rotation = new Rotation((float)radians,0,0);
-        slamwareCorePlatform.rotate(rotation);
-    }
-
-    @OnClick(R.id.moveGoal)
-    public void execMoveGoal(){
-        String dataX = goalX.getText().toString().trim();
-        String dataY = goalY.getText().toString().trim();
-        if (TextUtils.equals("",dataX) || TextUtils.equals("",dataY)){
-            Location location1 = new Location();
-            location1.setX(1.0F);
-            location1.setY(0.0F);
-            location1.setZ(0.0F);
-
-            Location location2 = new Location();
-            location2.setX(1.0f);
-            location2.setY(1.0f);
-            location2.setZ(0.0f);
-
-            Location location3 = new Location();
-            location3.setX(0.0f);
-            location3.setY(1.0f);
-            location3.setZ(0.0f);
-
-            Location location4 = new Location();
-            location4.setX(0.0f);
-            location4.setY(0.0f);
-            location4.setZ(0.0f);
-
-            List<Location> goals = new ArrayList<>();
-            goals.add(location1);
-            goals.add(location2);
-            goals.add(location3);
-            goals.add(location4);
-
-            slamwareCorePlatform.moveTo(goals,false,true);
-        }else {
-            Location location = new Location();
-            location.setX(Float.valueOf(dataX));
-            location.setY(Float.valueOf(dataY));
-            location.setZ(0.0f);
-            slamwareCorePlatform.moveTo(location);
-        }
-    }
-    @OnClick({R.id.forward,R.id.backward,R.id.left,R.id.right})
-    public void execForward(View view){
-        switch (view.getId()) {
-            case R.id.forward:
-                slamwareCorePlatform.moveBy(MoveDirection.FORWARD);
-                break;
-            case R.id.backward:
-                slamwareCorePlatform.moveBy(MoveDirection.BACKWARD);
-                break;
-            case R.id.left:
-                slamwareCorePlatform.moveBy(MoveDirection.TURN_LEFT);
-                break;
-            case R.id.right:
-                slamwareCorePlatform.moveBy(MoveDirection.TURN_RIGHT);
-                break;
-            default:
-                break;
         }
     }
 }
