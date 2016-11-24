@@ -1,4 +1,4 @@
-package com.robot.et.slamtek;
+package com.robot.et.slamtek.view;
 
 import android.content.Context;
 import android.graphics.Matrix;

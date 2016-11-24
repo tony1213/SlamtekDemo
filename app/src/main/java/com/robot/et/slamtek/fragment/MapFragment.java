@@ -2,14 +2,10 @@ package com.robot.et.slamtek.fragment;
 
 
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Point;
 
-import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -21,7 +17,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.robot.et.slamtek.R;
-import com.robot.et.slamtek.ScaleImageView;
+import com.robot.et.slamtek.view.ScaleImageView;
 import com.robot.et.slamtek.base.BaseFragment;
 
 import com.slamtec.slamware.geometry.PointF;
@@ -29,12 +25,9 @@ import com.slamtec.slamware.robot.Map;
 import com.slamtec.slamware.robot.MapKind;
 import com.slamtec.slamware.robot.MapType;
 import com.slamtec.slamware.robot.Pose;
-import android.graphics.RectF;
+
 import java.util.Timer;
 import java.util.TimerTask;
-
-import android.view.ViewGroup;
-import static android.graphics.Color.BLUE;
 
 /**
  * A simple {@link Fragment} subclass.

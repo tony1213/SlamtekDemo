@@ -1,7 +1,8 @@
-package com.robot.et.slamtek;
+package com.robot.et.slamtek.other;
 
 import java.util.Vector;
 
+import com.robot.et.slamtek.R;
 import com.robot.et.slamtek.base.BaseActivity;
 import com.robot.et.slamtek.fragment.MapFragment;
 import com.slamtec.slamware.robot.LaserPoint;
@@ -65,7 +66,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void initRobotState(){
-        quality.setText("quality:"+SlamtecLoader.getInstance().getLocalizationQuality());
+        quality.setText("quality:"+ SlamtecLoader.getInstance().getLocalizationQuality());
         battery.setText("BatteryPercent:" + SlamtecLoader.getInstance().getBatteryPrecent());
         charing.setText("IsCharing:"+SlamtecLoader.getInstance().getCharingState());
     }

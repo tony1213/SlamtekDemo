@@ -3,8 +3,7 @@ package com.robot.et.slamtek.base;
 import android.app.Fragment;
 import android.os.Bundle;
 
-import com.robot.et.slamtek.SlamtecLoader;
-import com.robot.et.slamtek.app.CustomerApplication;
+import com.robot.et.slamtek.other.SlamtecLoader;
 import com.slamtec.slamware.SlamwareCorePlatform;
 
 /**

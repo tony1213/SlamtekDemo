@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     tools:context="com.robot.et.slamtek.fragment.MapFragment">
 
-    <com.robot.et.slamtek.ScaleImageView
+    <com.robot.et.slamtek.view.ScaleImageView
         android:id="@+id/imageView1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

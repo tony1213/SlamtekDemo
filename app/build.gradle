@@ -41,4 +41,6 @@ dependencies {
     apt 'com.jakewharton:butterknife-compiler:8.4.0'
 
     compile 'com.google.guava:guava:20.0'
+
+    compile 'org.greenrobot:eventbus:3.0.0'
 }

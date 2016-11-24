@@ -1,4 +1,4 @@
-package com.robot.et.slamtek.app;
+package com.robot.et.slamtek;
 
 import android.app.Application;
 import android.util.Log;
